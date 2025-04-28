@@ -15,6 +15,7 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
+      position: relative;
     }
     h1 { font-size: 24px; margin-bottom: 10px; }
     p  { font-size: 18px; }
@@ -50,9 +51,38 @@
       height: 1.2em;
     }
     .line.visible { opacity: 1; }
+
+    /* 左上角返回按钮样式 */
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 20px;
+      cursor: pointer;
+      font-family: 'VT323', monospace;
+      display: flex; /* ✅加上这个让箭头和字并排！ */
+      align-items: center; /* ✅垂直居中 */
+}
+    .back-button:hover {
+      color: #cccccc;
+}
+    .arrow {
+      font-size: 16px; /* 左三角更小一点 */
+      margin-right: 6px;
+  }
   </style>
 </head>
+
 <body>
+
+  <!-- 左上角返回按钮 -->
+  <button class="back-button" onclick="goBack()">
+   <span class="arrow">&#x25C0;</span> 返回
+  </button>
+
   <h1>命定神谕生成器</h1>
   <p>输入你的名字：</p>
   <input type="text" id="nameInput" placeholder="你的名字">
@@ -95,48 +125,51 @@
       return Math.abs(hash);
     }
 
-    // 根据 seed 获取值和索引
+    // 按 seed 取值和索引
     function pickFromArrayBySeed(arr, seed) {
       const idx = seed % arr.length;
       return { value: arr[idx], index: idx };
     }
 
-    // 解锁自动播放策略
+    // 自动解锁播放
     let audioCtx;
     function unlockAudio() {
       if (audioCtx) return;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const buffer = audioCtx.createBuffer(1,1,22050);
-      const src  = audioCtx.createBufferSource();
+      const buffer = audioCtx.createBuffer(1, 1, 22050);
+      const src = audioCtx.createBufferSource();
       src.buffer = buffer;
       src.connect(audioCtx.destination);
       src.start(0);
     }
 
-    // 并行播放
+    // 播放新的音频
     function playConcurrent(src) {
       const audio = new Audio(src);
       audio.play().catch(err => console.error('播放失败:', err));
     }
 
-    // 生成神谕文本和对应音频
+    // 生成神谕文本和音频
     function generateOracleFromName(name) {
       const seed = hashStringToNumber(name);
       const w = pickFromArrayBySeed(words, seed + 1);
       const p = pickFromArrayBySeed(phrases, seed + 2);
       const s = pickFromArrayBySeed(sentences, seed + 3);
+
       // 方向词
-      const dirs = ["之上","之下","之间",""]; 
-      const weights = [0.2,0.2,0.2,0.4];
+      const directions = ["之上", "之下", "之间", ""];
+      const directionWeights = [0.2, 0.2, 0.2, 0.4];
       const r = (hashStringToNumber(name + '_dir') % 100) / 100;
-      let cum = 0, d = '';
-      for (let i = 0; i < dirs.length; i++) {
-        cum += weights[i];
-        if (r < cum) { d = dirs[i]; break; }
+      let cumulative = 0, d = "";
+      for (let i = 0; i < directions.length; i++) {
+        cumulative += directionWeights[i];
+        if (r < cumulative) { d = directions[i]; break; }
       }
+
       const lineA = d ? `“${w.value}${d}”` : `“${w.value}”`;
       const lineB = `“${p.value}”`;
       const lineC = `“${s.value}”`;
+
       return [
         { text: lineA, audio: `word-${w.index}.mp3` },
         { text: lineB, audio: `phrase-${p.index}.mp3` },
@@ -144,7 +177,7 @@
       ];
     }
 
-    // 主流程
+    // 显示神谕
     function showOracle() {
       unlockAudio();
       const name = document.getElementById('nameInput').value.trim();
@@ -152,6 +185,7 @@
       const l2 = document.getElementById('line2');
       const l3 = document.getElementById('line3');
       [l1, l2, l3].forEach(el => el.classList.remove('visible'));
+
       if (!name) {
         l1.textContent = '请输入一个名字，';
         l2.textContent = '才能听见神的回应。';
@@ -159,23 +193,38 @@
         l2.classList.add('visible');
         return;
       }
+
       const [o1, o2, o3] = generateOracleFromName(name);
+
       setTimeout(() => {
         l1.textContent = o1.text;
         playConcurrent(o1.audio);
         l1.classList.add('visible');
       }, 300);
+
       setTimeout(() => {
         l2.textContent = o2.text;
         playConcurrent(o2.audio);
         l2.classList.add('visible');
       }, 5300);
+
       setTimeout(() => {
         l3.textContent = o3.text;
         playConcurrent(o3.audio);
         l3.classList.add('visible');
       }, 10300);
+
+      // 30秒后自动返回首页
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 30000);
+    }
+
+    // 点击左上返回按钮
+    function goBack() {
+      window.location.href = "index.html";
     }
   </script>
+
 </body>
 </html>
