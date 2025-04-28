@@ -17,7 +17,7 @@
       margin: 0;
     }
     h1 { font-size: 24px; margin-bottom: 10px; }
-    p { font-size: 18px; }
+    p  { font-size: 18px; }
     input, button {
       font-family: 'VT323', monospace;
       font-size: 18px;
@@ -64,16 +64,28 @@
     <div class="line" id="line3"></div>
   </div>
 
-  <!-- 隐藏的音频播放器 -->
-  <audio id="audioPlayer" preload="auto"></audio>
-
   <script>
-    // —— 数据阵列 —— 
-    const words = [/* 同你原来 30 个中文词 */];
-    const phrases = [/* 同你原来 30 个中文短语 */];
-    const sentences = [/* 同你原来 30 个中文句子 */];
+    // —— 数据数组 ——
+    const words = [
+      "杏仁","苦艾","铁","满月","使命","雾","琥珀","洪水","乳牙","日影",
+      "碎水晶","月桂枝","乌鸦","玉珠","靛蓝","年轮","赌注","三叉戟","白蛇","十二点",
+      "国境线","黑猫","飞蛾","山羊瞳孔","太阳神鸟","白色棋子","异乡人","巴别塔","特洛伊","西西弗斯"
+    ];
+    const phrases = [
+      "哀悼","灼烧","门后","摆渡","雨后","粉碎的旗帜","心脏搏动","淘金","苦","百鸟沉寂",
+      "咀嚼黑夜","收集雨水","丢失的王冠","失而复得的","石中剑","沉睡的蜂群","泪水凝结成盐",
+      "偷走他的钱袋","亲吻她的手指","迷路在旷野","火光把天空照亮","未定的归来日","你经历过的一切",
+      "被咬过一口的苹果","一百首诗歌","树的新叶","我在月光里遗失的","贪婪","车辙消失在月色","沿着掌纹"
+    ];
+    const sentences = [
+      "你们要进窄门","不要去阁楼","醒来","不要遗忘","跨过他们的遗骨","我们还会再见",
+      "我们会再见吗","好吗","想我了吗","再见","杀了他","明天见","你听","他们在说谎",
+      "沉入大海","死在春夜","被太阳融化","无休无止","祝福你，我的朋友","谁在呢喃",
+      "回头","回到原点","会在梦中相见","这是谁的眼睛","闭上眼睛","雨停了","穿过山脉",
+      "谎言终结","烧到只剩灰烬"
+    ];
 
-    // 简单哈希
+    // 哈希函数
     function hashStringToNumber(str) {
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
@@ -83,47 +95,43 @@
       return Math.abs(hash);
     }
 
-    // 返回 { value, index }
+    // 根据 seed 获取值和索引
     function pickFromArrayBySeed(arr, seed) {
       const idx = seed % arr.length;
       return { value: arr[idx], index: idx };
     }
 
-    // 浏览器自动播放解锁
+    // 解锁自动播放策略
     let audioCtx;
     function unlockAudio() {
       if (audioCtx) return;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const buffer = audioCtx.createBuffer(1,1,22050);
-      const src = audioCtx.createBufferSource();
+      const src  = audioCtx.createBufferSource();
       src.buffer = buffer;
       src.connect(audioCtx.destination);
       src.start(0);
     }
 
-    // 播放指定文件，并打印日志以便调试
-    function playSrc(filename) {
-      const audio = document.getElementById('audioPlayer');
-      console.log('▶️ 尝试播放音频:', filename);
-      audio.src = filename;
-      audio.load();
-      audio.play().catch(err => console.error('❌ 播放失败', err));
+    // 并行播放
+    function playConcurrent(src) {
+      const audio = new Audio(src);
+      audio.play().catch(err => console.error('播放失败:', err));
     }
 
-    // 生成三行神谕文本 + 对应的文件名
+    // 生成神谕文本和对应音频
     function generateOracleFromName(name) {
       const seed = hashStringToNumber(name);
-      const dirs = ["之上","之下","之间",""];
       const w = pickFromArrayBySeed(words, seed + 1);
       const p = pickFromArrayBySeed(phrases, seed + 2);
       const s = pickFromArrayBySeed(sentences, seed + 3);
-      // 随机方向
+      // 方向词
+      const dirs = ["之上","之下","之间",""]; 
+      const weights = [0.2,0.2,0.2,0.4];
       const r = (hashStringToNumber(name + '_dir') % 100) / 100;
-      const cumWeights = [0.2,0.2,0.2,0.4];
-      let d = "";
-      let cum = 0;
-      for (let i=0; i<dirs.length; i++){
-        cum += cumWeights[i];
+      let cum = 0, d = '';
+      for (let i = 0; i < dirs.length; i++) {
+        cum += weights[i];
         if (r < cum) { d = dirs[i]; break; }
       }
       const lineA = d ? `“${w.value}${d}”` : `“${w.value}”`;
@@ -138,40 +146,34 @@
 
     // 主流程
     function showOracle() {
-      unlockAudio();  // 第一次点击解锁
-
-      const name = document.getElementById("nameInput").value.trim();
-      const l1 = document.getElementById("line1");
-      const l2 = document.getElementById("line2");
-      const l3 = document.getElementById("line3");
-      [l1,l2,l3].forEach(el => el.classList.remove("visible"));
-
+      unlockAudio();
+      const name = document.getElementById('nameInput').value.trim();
+      const l1 = document.getElementById('line1');
+      const l2 = document.getElementById('line2');
+      const l3 = document.getElementById('line3');
+      [l1, l2, l3].forEach(el => el.classList.remove('visible'));
       if (!name) {
-        l1.textContent = "请输入一个名字，";
-        l2.textContent = "才能听见神的回应。";
-        l1.classList.add("visible");
-        l2.classList.add("visible");
+        l1.textContent = '请输入一个名字，';
+        l2.textContent = '才能听见神的回应。';
+        l1.classList.add('visible');
+        l2.classList.add('visible');
         return;
       }
-
-      const [o1,o2,o3] = generateOracleFromName(name);
-
+      const [o1, o2, o3] = generateOracleFromName(name);
       setTimeout(() => {
         l1.textContent = o1.text;
-        playSrc(o1.audio);
-        l1.classList.add("visible");
+        playConcurrent(o1.audio);
+        l1.classList.add('visible');
       }, 300);
-
       setTimeout(() => {
         l2.textContent = o2.text;
-        playSrc(o2.audio);
-        l2.classList.add("visible");
+        playConcurrent(o2.audio);
+        l2.classList.add('visible');
       }, 5300);
-
       setTimeout(() => {
         l3.textContent = o3.text;
-        playSrc(o3.audio);
-        l3.classList.add("visible");
+        playConcurrent(o3.audio);
+        l3.classList.add('visible');
       }, 10300);
     }
   </script>
