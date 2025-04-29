@@ -33,26 +33,31 @@
     button:hover { background-color: #e4e4e4; }
     .oracle {
       margin-top: 30px;
-      font-size: 16px;
+      /* 字体适当放大 */
+      font-size: 20px;
+      /* 保持行高不变 */
       line-height: 1.2;
       white-space: pre-line;
       text-align: center;
-      width: 400px;
-      padding: 16px;
+      /* 框整体放大 */
+      width: 450px;
+      padding: 18px;
       background-color: rgba(255,255,255,0.05);
       border: 2px solid #fff;
       box-shadow: 4px 4px 0 #1b2a3d;
-      min-height: 120px;
+      /* 适当增高 */
+      min-height: 140px;
       box-sizing: border-box;
     }
     .line {
       opacity: 0;
       transition: opacity 1s ease-in-out;
+      /* 每行高度与行高一致 */
       height: 1.2em;
     }
     .line.visible { opacity: 1; }
 
-    /* 左上角返回按钮样式 */
+    /* 左上角返回按钮 */
     .back-button {
       position: absolute;
       top: 20px;
@@ -63,24 +68,21 @@
       font-size: 20px;
       cursor: pointer;
       font-family: 'VT323', monospace;
-      display: flex; /* ✅加上这个让箭头和字并排！ */
-      align-items: center; /* ✅垂直居中 */
-}
-    .back-button:hover {
-      color: #cccccc;
-}
+      display: flex;
+      align-items: center;
+    }
+    .back-button:hover { color: #cccccc; }
     .arrow {
-      font-size: 16px; /* 左三角更小一点 */
+      font-size: 16px;
       margin-right: 6px;
-  }
+    }
   </style>
 </head>
-
 <body>
 
   <!-- 左上角返回按钮 -->
   <button class="back-button" onclick="goBack()">
-   <span class="arrow">&#x25C0;</span> 返回
+    <span class="arrow">&#x25C0;</span> 返回
   </button>
 
   <h1>命定神谕生成器</h1>
@@ -143,7 +145,7 @@
       src.start(0);
     }
 
-    // 播放新的音频
+    // 播放新的音频并行
     function playConcurrent(src) {
       const audio = new Audio(src);
       audio.play().catch(err => console.error('播放失败:', err));
@@ -155,21 +157,17 @@
       const w = pickFromArrayBySeed(words, seed + 1);
       const p = pickFromArrayBySeed(phrases, seed + 2);
       const s = pickFromArrayBySeed(sentences, seed + 3);
-
-      // 方向词
-      const directions = ["之上", "之下", "之间", ""];
-      const directionWeights = [0.2, 0.2, 0.2, 0.4];
+      const directions = ["之上","之下","之间",""]; 
+      const directionWeights = [0.2,0.2,0.2,0.4];
       const r = (hashStringToNumber(name + '_dir') % 100) / 100;
       let cumulative = 0, d = "";
       for (let i = 0; i < directions.length; i++) {
         cumulative += directionWeights[i];
         if (r < cumulative) { d = directions[i]; break; }
       }
-
       const lineA = d ? `“${w.value}${d}”` : `“${w.value}”`;
       const lineB = `“${p.value}”`;
       const lineC = `“${s.value}”`;
-
       return [
         { text: lineA, audio: `word-${w.index}.mp3` },
         { text: lineB, audio: `phrase-${p.index}.mp3` },
@@ -177,7 +175,7 @@
       ];
     }
 
-    // 显示神谕
+    // 主流程
     function showOracle() {
       unlockAudio();
       const name = document.getElementById('nameInput').value.trim();
@@ -193,21 +191,17 @@
         l2.classList.add('visible');
         return;
       }
-
       const [o1, o2, o3] = generateOracleFromName(name);
-
       setTimeout(() => {
         l1.textContent = o1.text;
         playConcurrent(o1.audio);
         l1.classList.add('visible');
       }, 300);
-
       setTimeout(() => {
         l2.textContent = o2.text;
         playConcurrent(o2.audio);
         l2.classList.add('visible');
       }, 5300);
-
       setTimeout(() => {
         l3.textContent = o3.text;
         playConcurrent(o3.audio);
@@ -215,12 +209,9 @@
       }, 10300);
 
       // 30秒后自动返回首页
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 30000);
+      setTimeout(() => window.location.href = "index.html", 30000);
     }
 
-    // 点击左上返回按钮
     function goBack() {
       window.location.href = "index.html";
     }

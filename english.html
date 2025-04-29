@@ -17,11 +17,16 @@
       margin: 0;
       position: relative;
     }
-    h1 { font-size: 24px; margin-bottom: 10px; }
-    p  { font-size: 18px; }
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 22px;
+    }
     input, button {
       font-family: 'VT323', monospace;
-      font-size: 18px;
+      font-size: 22px;
       padding: 6px 12px;
       margin: 8px;
       background: #ffffff;
@@ -31,28 +36,38 @@
       cursor: pointer;
     }
     button:hover { background-color: #e4e4e4; }
-    .oracle {
-      margin-top: 30px;
-      font-size: 16px;
-      line-height: 1.2;
-      white-space: pre-line;
-      text-align: center;
-      width: 400px;
-      padding: 16px;
-      background-color: rgba(255,255,255,0.05);
-      border: 2px solid #fff;
-      box-shadow: 4px 4px 0 #1b2a3d;
-      min-height: 120px;
-      box-sizing: border-box;
-    }
-    .line {
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-      height: 1.2em;
-    }
-    .line.visible { opacity: 1; }
 
-    /* 左上角返回按钮样式 */
+    .oracle {
+  margin-top: 30px;
+  font-size: 26px;
+  line-height: 1.3;
+  white-space: pre-line;
+  text-align: center;
+  width: 630px;
+  height: 190px;               /* ✨ 固定高度，不再 auto */
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 2px solid #ffffff;
+  box-shadow: 4px 4px 0px #1b2a3d;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;     /* ✨ 垂直居中 */
+  align-items: center;         /* ✨ 水平居中 */
+}
+
+.line {
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  margin: 6px 0;               /* ✨ 行距自然，不挤 */
+  height: 1.2em;               /* ✨ 设置固定高度避免塌陷 */
+}
+
+.line.visible {
+  opacity: 1;
+}
+
     .back-button {
       position: absolute;
       top: 20px;
@@ -66,19 +81,13 @@
       display: flex;
       align-items: center;
     }
-    .back-button:hover {
-      color: #cccccc;
-    }
-    .arrow {
-      font-size: 16px;
-      margin-right: 6px;
-    }
+    .back-button:hover { color: #cccccc; }
+    .arrow { font-size: 16px; margin-right: 6px; }
   </style>
 </head>
 
 <body>
 
-  <!-- 左上角返回按钮 -->
   <button class="back-button" onclick="goBack()">
     <span class="arrow">&#x25C0;</span> Back
   </button>
@@ -186,14 +195,16 @@
     function showOracle() {
       unlockAudio();
       const name = document.getElementById('nameInput').value.trim();
-      const l1 = document.getElementById('line1');
-      const l2 = document.getElementById('line2');
-      const l3 = document.getElementById('line3');
+      const [l1, l2, l3] = [
+        document.getElementById('line1'),
+        document.getElementById('line2'),
+        document.getElementById('line3')
+      ];
       [l1, l2, l3].forEach(el => el.classList.remove('visible'));
 
       if (!name) {
-        l1.textContent = 'Please enter a name,';
-        l2.textContent = 'to hear the gods’ voice.';
+        l1.textContent = "Please enter a name,";
+        l2.textContent = "to hear the gods’ voice.";
         l1.classList.add('visible');
         l2.classList.add('visible');
         return;
@@ -219,7 +230,6 @@
         l3.classList.add('visible');
       }, 10300);
 
-      // Auto go back after 30s
       setTimeout(() => {
         window.location.href = "index.html";
       }, 30000);

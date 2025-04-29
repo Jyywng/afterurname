@@ -29,13 +29,17 @@
       color: #000000;
       border: 2px solid #000000;
       padding: 12px;
-      font-size: 20px;
       font-family: 'VT323', monospace;
       cursor: pointer;
       text-align: left;
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    /* 新增：调整文字样式 */
+    .dropdown-text {
+      font-size: 24px;       /* 字体稍大 */
+      letter-spacing: 2px;   /* 字母/文字间距 */
     }
     .arrow {
       margin-left: 10px;
@@ -54,6 +58,8 @@
       padding: 12px;
       cursor: pointer;
       border-top: 1px solid #000000;
+      font-size: 20px;
+      letter-spacing: 1px;
     }
     .option:hover {
       background-color: #e0e0e0;
@@ -65,12 +71,11 @@
   <h1>选择语言<br>Choose Language</h1>
 
   <div class="dropdown" onclick="toggleOptions()">
-    请选择 / Please select <span class="arrow">▼</span>
+    <span class="dropdown-text">请选择 / Please select</span>
+    <span class="arrow">▼</span>
   </div>
   <div class="options" id="options">
-    <!-- 这里改成你实际的中文页面文件名 -->
     <div class="option" onclick="location.href='chinese.html'">中文</div>
-    <!-- 这里改成你实际的英文页面文件名 -->
     <div class="option" onclick="location.href='english.html'">English</div>
   </div>
 
