@@ -25,24 +25,25 @@
     .dropdown {
       position: relative;
       width: 320px;
+      height: 48px;           /* 固定高度，确保一致 */
       background: #ffffff;
       color: #000000;
       border: 2px solid #000000;
-      padding: 12px;
+      padding: 0 12px;        /* 去掉上下 padding，左右保留 */
       font-family: 'VT323', monospace;
-      cursor: pointer;
-      text-align: left;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: center;    /* 垂直居中 */
+      cursor: pointer;
+      white-space: nowrap;     /* 防止换行 */
     }
-    /* 新增：调整文字样式 */
     .dropdown-text {
       font-size: 24px;       /* 字体稍大 */
-      letter-spacing: 2px;   /* 字母/文字间距 */
+      letter-spacing: 2px;   /* 文字间距 */
     }
     .arrow {
       margin-left: 10px;
+      font-size: 20px;       /* 保持箭头大小 */
     }
     .options {
       margin-top: 5px;
@@ -52,14 +53,18 @@
       flex-direction: column;
       background: #ffffff;
       color: #000000;
-      font-family: 'VT323', monospace;
+      font-family: 'VT323', monospace, 'Source Han Serif SC', 'SimSun', serif;
     }
     .option {
-      padding: 12px;
-      cursor: pointer;
-      border-top: 1px solid #000000;
+      display: flex;
+      align-items: center;
+      height: 48px;          /* 与 .dropdown 保持一致 */
+      padding: 0 12px;
       font-size: 20px;
       letter-spacing: 1px;
+      cursor: pointer;
+      border-top: 1px solid #000000;
+      white-space: nowrap;
     }
     .option:hover {
       background-color: #e0e0e0;
